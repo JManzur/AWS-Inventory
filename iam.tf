@@ -88,7 +88,7 @@ data "aws_iam_policy_document" "role_source" {
 
 # IAM Policy
 resource "aws_iam_policy" "policy" {
-  name        = "AWS_Inventory_policy"
+  name        = "AWS_Inventory_Policy"
   path        = "/"
   description = "AWS_Inventory Policy"
   policy      = data.aws_iam_policy_document.policy_source.json
@@ -97,7 +97,7 @@ resource "aws_iam_policy" "policy" {
 
 # IAM Role (Lambda execution role)
 resource "aws_iam_role" "role" {
-  name               = "AWS_Inventory_policy_role"
+  name               = "AWS_Inventory_Role"
   assume_role_policy = data.aws_iam_policy_document.role_source.json
   tags               = { Name = "${var.name-prefix}-role" }
 }

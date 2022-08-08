@@ -1,0 +1,10 @@
+[
+    {
+        "RoleArn": "arn:aws:iam::222222222222:role/role-on-source-account",
+        "RoleSessionName": "cross_acct_lambda2"
+    },
+    {
+        "RoleArn": "arn:aws:iam::111111111111:role/role-on-source-account",
+        "RoleSessionName": "cross_acct_lambda1"
+    }
+]

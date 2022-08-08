@@ -22,26 +22,6 @@ data "aws_iam_policy_document" "policy_source" {
   }
 
   statement {
-    sid    = "DynamoPermissions"
-    effect = "Allow"
-    actions = [
-      "dynamodb:BatchGetItem",
-      "dynamodb:BatchWriteItem",
-      "dynamodb:ConditionCheckItem",
-      "dynamodb:PutItem",
-      "dynamodb:DescribeTable",
-      "dynamodb:DeleteItem",
-      "dynamodb:GetItem",
-      "dynamodb:Scan",
-      "dynamodb:Query",
-      "dynamodb:UpdateItem"
-    ]
-    resources = [
-      "${aws_dynamodb_table.AWS_Inventory.arn}"
-    ]
-  }
-
-  statement {
     sid    = "PutObjectS3"
     effect = "Allow"
     actions = [

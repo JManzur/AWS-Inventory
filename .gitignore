@@ -1,6 +1,6 @@
 # JManzur
 .terraform.lock.hcl
-.infracost
+**/..infracost/*
 
 # Local .terraform directories
 **/.terraform/*

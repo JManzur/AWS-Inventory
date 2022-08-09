@@ -17,27 +17,36 @@ def lambda_handler(event, context):
             #EC2:
             local_ec2_inventory = get_ec2_local(availability_zones)
             cross_account_ec2_inventory = get_ec2_cross_accounts(availability_zones)
+            
             #RDS:
             local_rds_inventory = get_rds_local()
             cross_account_rds_inventory = get_rds_cross_accounts()
+
+            #Create Inventory List:
+            EC2_Inventory = []
+            for index in local_ec2_inventory:
+                EC2_Inventory.append(index)
+            for index in cross_account_ec2_inventory:
+                EC2_Inventory.append(index)
+
+            RDS_Inventory = []
+            for index in local_rds_inventory:
+                RDS_Inventory.append(index)
+            for index in cross_account_rds_inventory:
+                RDS_Inventory.append(index)
         else:
             #EC2:
             cross_account_ec2_inventory = get_ec2_cross_accounts(availability_zones)
             #RDS:
             cross_account_rds_inventory = get_rds_cross_accounts()
 
-        #Create Inventory List:
-        EC2_Inventory = []
-        for index in local_ec2_inventory:
-            EC2_Inventory.append(index)
-        for index in cross_account_ec2_inventory:
-            EC2_Inventory.append(index)
-
-        RDS_Inventory = []
-        for index in local_rds_inventory:
-            RDS_Inventory.append(index)
-        for index in cross_account_rds_inventory:
-            RDS_Inventory.append(index)
+            #Create Inventory List:
+            EC2_Inventory = []
+            for index in cross_account_ec2_inventory:
+                EC2_Inventory.append(index)
+            RDS_Inventory = []
+            for index in cross_account_rds_inventory:
+                RDS_Inventory.append(index)
 
         #Store Inventory in S3:
         save_json(EC2_Inventory, RDS_Inventory)

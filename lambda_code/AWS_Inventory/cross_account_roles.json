@@ -1,6 +1,7 @@
 [
     {
         "RoleArn": "arn:aws:iam::959033481857:role/AWS-Inventory",
-        "RoleSessionName": "959033481857-Inventory"
+        "RoleSessionName": "959033481857-Inventory",
+        "Description": "Spec-Ops-Sandbox"
     }
 ]

@@ -12,6 +12,7 @@ regions_scope = [
 
 roles_file = open('cross_account_roles.json')
 roles_list = json.load(roles_file)
+local_account_description = "AWS-Inventory"
 
 def get_regions():
     ec2 = boto3.client('ec2')
@@ -79,7 +80,8 @@ def get_ec2_local(availability_zones):
                             'AvailabilityZone': '{}'.format(instance["Placement"]["AvailabilityZone"]),
                             'State': '{}'.format(instance["State"]["Name"]),
                             'PlatformDetails': '{}'.format(instance["PlatformDetails"]),
-                            'AccountID': '{}'.format(account_id)
+                            'AccountID': '{}'.format(account_id),
+                            'Description': '{}'.format(local_account_description)
                             }
                         instances_list.append(instance_details)
                         i += 1
@@ -134,7 +136,8 @@ def get_ec2_cross_accounts(availability_zones):
                                 'AvailabilityZone': '{}'.format(instance["Placement"]["AvailabilityZone"]),
                                 'State': '{}'.format(instance["State"]["Name"]),
                                 'PlatformDetails': '{}'.format(instance["PlatformDetails"]),
-                                'AccountID': '{}'.format(account_id)
+                                'AccountID': '{}'.format(account_id),
+                                'Description': '{}'.format(role['Description'])
                                 }
                             instances_list.append(instance_details)
                             i += 1
@@ -159,7 +162,8 @@ def get_rds_local():
                 'AvailabilityZone': '{}'.format(instance["AvailabilityZone"]),
                 'DBInstanceStatus': '{}'.format(instance["DBInstanceStatus"]),
                 'Engine': '{}'.format(instance["Engine"]),
-                'AccountID': '{}'.format(account_id)
+                'AccountID': '{}'.format(account_id),
+                'Description': '{}'.format(local_account_description)
             }
             instances_list.append(instance_details)
 
@@ -208,7 +212,8 @@ def get_rds_cross_accounts():
                     'AvailabilityZone': '{}'.format(instance["AvailabilityZone"]),
                     'DBInstanceStatus': '{}'.format(instance["DBInstanceStatus"]),
                     'Engine': '{}'.format(instance["Engine"]),
-                    'AccountID': '{}'.format(account_id)
+                    'AccountID': '{}'.format(account_id),
+                    'Description': '{}'.format(role['Description'])
                 }
                 instances_list.append(instance_details)
 

@@ -34,23 +34,21 @@ data "aws_iam_policy_document" "policy_source" {
   }
 
   statement {
-    sid    = "KMSPermissions"
-    effect = "Allow"
-    actions = [
-      "kms:GenerateDataKey"
-    ]
-    resources = [
-      "${aws_kms_key.aws_inventory.arn}"
-    ]
-  }
-
-  statement {
     sid    = "RDSPermissions"
     effect = "Allow"
     actions = [
       "rds:DescribeDBInstances"
     ]
     resources = ["*"]
+  }
+
+  statement {
+    sid    = "CrossAccountPermissions"
+    effect = "Allow"
+    actions = [
+      "sts:AssumeRole"
+    ]
+    resources = var.Roles_List
   }
 }
 

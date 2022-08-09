@@ -1,0 +1,55 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: This template creates an IAM role with administrator access and a trust relationship with another AWS account.
+
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: "Cross Account Role Definitions"
+        Parameters:
+          - PrincipalAccountID
+Parameters:
+  PrincipalAccountID:
+    Type: Number
+    Description: Principal Account ID
+Resources:
+  AWSInventoryRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      RoleName: AWS-Inventory
+      Policies:
+        - PolicyName: EC2Permissions
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+            - Sid: "EC2ReadOnly"
+              Effect: Allow
+              Action:
+                - 'ec2:DescribeInstances'
+                - 'ec2:DescribeAvailabilityZones'
+                - 'ec2:DescribeRegions'
+              Resource: '*'
+        - PolicyName: RDSPermissions
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+            - Sid: "RDSReadOnly"
+              Effect: Allow
+              Action:
+                - 'rds:DescribeDBInstances'
+              Resource: '*'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              AWS: !Sub arn:aws:iam::${PrincipalAccountID}:root
+Outputs:
+  AWSInventoryRoleArn:
+    Description: Cross Account Role for the AWS Inventory Lambda
+    Value:
+      Fn::GetAtt:
+        - AWSInventoryRole
+        - Arn

@@ -19,10 +19,12 @@ def lambda_handler(event, context):
             cross_account_ec2_inventory = get_ec2_cross_accounts(availability_zones)
             #RDS:
             local_rds_inventory = get_rds_local()
+            cross_account_rds_inventory = get_rds_cross_accounts()
         else:
             #EC2:
             cross_account_ec2_inventory = get_ec2_cross_accounts(availability_zones)
             #RDS:
+            cross_account_rds_inventory = get_rds_cross_accounts()
 
         #Create Inventory List:
         EC2_Inventory = []
@@ -34,7 +36,7 @@ def lambda_handler(event, context):
         RDS_Inventory = []
         for index in local_rds_inventory:
             RDS_Inventory.append(index)
-        for index in local_rds_inventory:
+        for index in cross_account_rds_inventory:
             RDS_Inventory.append(index)
 
         #Store Inventory in S3:

@@ -34,3 +34,10 @@ variable "name-prefix" {
 variable "bucket_name" {
   type = string
 }
+
+variable "Roles_List" {
+ type = list(string)
+ default = [
+ 	"arn:aws:iam::959033481857:role/AWS-Inventory"
+	]
+}

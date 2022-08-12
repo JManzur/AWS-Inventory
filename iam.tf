@@ -43,6 +43,16 @@ data "aws_iam_policy_document" "policy_source" {
   }
 
   statement {
+    sid    = "ECSPermissions"
+    effect = "Allow"
+    actions = [
+      "ecs:DescribeClusters",
+      "ecs:ListClusters"
+    ]
+    resources = ["*"]
+  }
+
+  statement {
     sid    = "CrossAccountPermissions"
     effect = "Allow"
     actions = [

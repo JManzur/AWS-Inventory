@@ -75,13 +75,13 @@ def get_ec2_local(availability_zones):
                 while i < len(response['Reservations']):
                     for instance in response['Reservations'][i]['Instances']:
                         instance_details = {
+                            'AccountID': '{}'.format(account_id),
+                            'AccountDescription': '{}'.format(local_account_description),
                             'InstanceId': '{}'.format(instance["InstanceId"]),
                             'InstanceType': '{}'.format(instance["InstanceType"]),
                             'AvailabilityZone': '{}'.format(instance["Placement"]["AvailabilityZone"]),
                             'State': '{}'.format(instance["State"]["Name"]),
-                            'PlatformDetails': '{}'.format(instance["PlatformDetails"]),
-                            'AccountID': '{}'.format(account_id),
-                            'Description': '{}'.format(local_account_description)
+                            'PlatformDetails': '{}'.format(instance["PlatformDetails"])
                             }
                         instances_list.append(instance_details)
                         i += 1
@@ -131,13 +131,13 @@ def get_ec2_cross_accounts(availability_zones):
                     while i < len(response['Reservations']):
                         for instance in response['Reservations'][i]['Instances']:
                             instance_details = {
+                                'AccountID': '{}'.format(account_id),
+                                'AccountDescription': '{}'.format(role['Description']),
                                 'InstanceId': '{}'.format(instance["InstanceId"]),
                                 'InstanceType': '{}'.format(instance["InstanceType"]),
                                 'AvailabilityZone': '{}'.format(instance["Placement"]["AvailabilityZone"]),
                                 'State': '{}'.format(instance["State"]["Name"]),
-                                'PlatformDetails': '{}'.format(instance["PlatformDetails"]),
-                                'AccountID': '{}'.format(account_id),
-                                'Description': '{}'.format(role['Description'])
+                                'PlatformDetails': '{}'.format(instance["PlatformDetails"])
                                 }
                             instances_list.append(instance_details)
                             i += 1
@@ -157,13 +157,13 @@ def get_rds_local():
         response = rds.describe_db_instances()
         for instance in response['DBInstances']:
             instance_details = {
+                'AccountID': '{}'.format(account_id),
+                'AccountDescription': '{}'.format(local_account_description),
                 'DBInstanceArn': '{}'.format(instance["DBInstanceArn"]),
                 'DBInstanceClass': '{}'.format(instance["DBInstanceClass"]),
                 'AvailabilityZone': '{}'.format(instance["AvailabilityZone"]),
                 'DBInstanceStatus': '{}'.format(instance["DBInstanceStatus"]),
-                'Engine': '{}'.format(instance["Engine"]),
-                'AccountID': '{}'.format(account_id),
-                'Description': '{}'.format(local_account_description)
+                'Engine': '{}'.format(instance["Engine"])
             }
             instances_list.append(instance_details)
 
@@ -207,15 +207,57 @@ def get_rds_cross_accounts():
             response = rds.describe_db_instances()
             for instance in response['DBInstances']:
                 instance_details = {
+                    'AccountID': '{}'.format(account_id),
+                    'AccountDescription': '{}'.format(role['Description']),
                     'DBInstanceArn': '{}'.format(instance["DBInstanceArn"]),
                     'DBInstanceClass': '{}'.format(instance["DBInstanceClass"]),
                     'AvailabilityZone': '{}'.format(instance["AvailabilityZone"]),
                     'DBInstanceStatus': '{}'.format(instance["DBInstanceStatus"]),
-                    'Engine': '{}'.format(instance["Engine"]),
-                    'AccountID': '{}'.format(account_id),
-                    'Description': '{}'.format(role['Description'])
+                    'Engine': '{}'.format(instance["Engine"])
                 }
                 instances_list.append(instance_details)
 
         logger.info("RDS-Inventory: The number of RDS instances in the Account is: {}".format(len(instances_list)))
         return instances_list
+
+def get_ecs_local():
+    account_id = get_account_id()
+
+    for region in regions_scope:
+        boto3_config = Config(region_name = '{}'.format(region))
+        ecs = boto3.client(
+            'ecs',
+            config=boto3_config
+            )
+
+        list_clusters = ecs.list_clusters()
+
+        cluster_list = []
+        for clusterArn in list_clusters['clusterArns']:
+            cluster_description = ecs.describe_clusters(clusters=['{}'.format(clusterArn)])
+            for cluster in cluster_description['clusters']:
+                if len(cluster['capacityProviders']) > 0:
+                    capacityProviders  = cluster['capacityProviders']
+                    cluster_details = {
+                        'AccountID': '{}'.format(account_id),
+                        'AccountDescription': '{}'.format(local_account_description),
+                        'clusterName': '{}'.format(cluster['clusterName']),
+                        'clusterArn': '{}'.format(cluster['clusterArn']),
+                        'status': '{}'.format(cluster['status']),
+                        'runningTasksCount': '{}'.format(cluster['runningTasksCount']),
+                        'capacityProviders': '{}'.format(capacityProviders)
+                    }
+                
+                else:
+                    cluster_details = {
+                        'AccountID': '{}'.format(account_id),
+                        'AccountDescription': '{}'.format(local_account_description),
+                        'clusterName': '{}'.format(cluster['clusterName']),
+                        'clusterArn': '{}'.format(cluster['clusterArn']),
+                        'status': '{}'.format(cluster['status']),
+                        'runningTasksCount': '{}'.format(cluster['runningTasksCount'])
+                    }
+
+                cluster_list.append(cluster_details)
+
+        return cluster_list

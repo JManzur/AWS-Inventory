@@ -28,7 +28,7 @@ def insert_ec2_data(ec2_inventory):
         except KeyError as error:
             logger.error(error)
 
-def save_json(EC2_Inventory, RDS_Inventory):
+def save_json(EC2_Inventory, RDS_Inventory, ECS_Inventory):
     print("Executing: save_json")
     Path("output_files/EC2/").mkdir(parents=True, exist_ok=True)
     
@@ -49,10 +49,20 @@ def save_json(EC2_Inventory, RDS_Inventory):
     except IOError:
         print("ERROR: Unable to save file")
 
+    Path("output_files/ECS/").mkdir(parents=True, exist_ok=True)
+    try:
+        with open("output_files/ECS/ECS_Inventory.json", 'w') as outfile:
+            json.dump(ECS_Inventory, outfile, ensure_ascii=False, indent=4)
+        with open("output_files/ECS/ECS_Inventory-{}.json".format(current_date), 'w') as outfile:
+            json.dump(ECS_Inventory, outfile, ensure_ascii=False, indent=4)
+    except IOError:
+        print("ERROR: Unable to save file")
+
 def push_to_s3(bucket_name):
     print("Executing: push_to_s3")
     EC2_Inventory = glob.glob("output_files/EC2/*.json")
     RDS_Inventory = glob.glob("output_files/RDS/*.json")
+    ECS_Inventory = glob.glob("output_files/ECS/*.json")
     s3 = boto3.resource('s3')
 
     for filename in EC2_Inventory:
@@ -69,6 +79,17 @@ def push_to_s3(bucket_name):
     for filename in RDS_Inventory:
         json_filename = os.path.basename(filename)
         object = s3.Object(bucket_name, 'aws_inventory/rds/{}'.format(json_filename))
+        result = object.put(Body=open(filename, 'rb'),)
+        res = result.get('ResponseMetadata')
+        logger.info("S3 ResponseMetadata: {}".format(res))
+        if res.get('HTTPStatusCode') == 200:
+            logger.info('File {} uploaded successfully'.format(json_filename))
+        else:
+            logger.error('File {} Not Uploaded'.format(json_filename))
+
+    for filename in ECS_Inventory:
+        json_filename = os.path.basename(filename)
+        object = s3.Object(bucket_name, 'aws_inventory/ecs/{}'.format(json_filename))
         result = object.put(Body=open(filename, 'rb'),)
         res = result.get('ResponseMetadata')
         logger.info("S3 ResponseMetadata: {}".format(res))

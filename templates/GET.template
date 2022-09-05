@@ -1,0 +1,5 @@
+{
+   "http_method": "$context.httpMethod",
+   "InventoryType": "$input.params('InventoryType')",
+   "ScanLocalAccount": "$input.params('ScanLocalAccount')"
+}

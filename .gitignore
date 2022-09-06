@@ -2,6 +2,7 @@
 .terraform.lock.hcl
 **/.infracost/*
 lambda_code/AWS_Inventory/cross_account_roles.json
+default.auto.tfvars
 
 # Local .terraform directories
 **/.terraform/*

@@ -54,12 +54,11 @@ def get_account_id():
 
     return account_id
 
-def get_ec2_local(availability_zones):
-    # Get the AWS Account ID:
+def get_ec2_local(AWS_Inventory, availability_zones):
+    #Get the AWS Account ID:
     account_id = get_account_id()
 
-    # Get the EC2 Inventory:
-    instances_list = []
+    #Get the EC2 Inventory:
     for region in regions_scope:
         boto3_config = Config(region_name = '{}'.format(region))
         ec2 = boto3.client(
@@ -83,24 +82,17 @@ def get_ec2_local(availability_zones):
                             'State': '{}'.format(instance["State"]["Name"]),
                             'PlatformDetails': '{}'.format(instance["PlatformDetails"])
                             }
-                        instances_list.append(instance_details)
+                        AWS_Inventory.append(instance_details)
                         i += 1
-    logger.info("EC2-Inventory: The number of EC2 instances in the Account is: {}".format(len(instances_list)))
-    return instances_list
 
-def get_ec2_cross_accounts_router(availability_zones):
-    print("Running: get_ec2_cross_accounts_router")
-    cross_account_inventory_list = []
+def get_ec2_cross_accounts_router(AWS_Inventory, availability_zones):
     try:
         for role in roles_list:
-             cross_account_inventory = get_ec2_cross_accounts(availability_zones, role)
-             cross_account_inventory_list.append(cross_account_inventory)
-         
-        return cross_account_inventory_list
+             get_ec2_cross_accounts(AWS_Inventory, availability_zones, role)
     except Exception as error:
         logger.error(error)
 
-def get_ec2_cross_accounts(availability_zones, role):
+def get_ec2_cross_accounts(AWS_Inventory, availability_zones, role):
     #Set the Cross Account Credentials: 
     sts_connection = boto3.client('sts')
     cross_account_role = sts_connection.assume_role(
@@ -111,7 +103,7 @@ def get_ec2_cross_accounts(availability_zones, role):
     SECRET_KEY = cross_account_role['Credentials']['SecretAccessKey']
     SESSION_TOKEN = cross_account_role['Credentials']['SessionToken']
 
-    # Get the AWS Account ID:
+    #Get the AWS Account ID:
     sts_connection = boto3.client(
         'sts',
         aws_access_key_id=ACCESS_KEY,
@@ -121,9 +113,7 @@ def get_ec2_cross_accounts(availability_zones, role):
     get_account_id = sts_connection.get_caller_identity()
     account_id = get_account_id['Account']
 
-    # Get the EC2 Inventory:       
-    instances_list = []
-
+    #Get the EC2 Inventory:
     for region in regions_scope:
         boto3_config = Config(region_name = '{}'.format(region))
         ec2 = boto3.client(
@@ -150,18 +140,14 @@ def get_ec2_cross_accounts(availability_zones, role):
                             'State': '{}'.format(instance["State"]["Name"]),
                             'PlatformDetails': '{}'.format(instance["PlatformDetails"])
                             }
-                        instances_list.append(instance_details)
+                        AWS_Inventory.append(instance_details)
                         i += 1
-    logger.info("EC2-Inventory: The number of EC2 instances in the Account is: {}".format(len(instances_list)))
-    return instances_list
 
-def get_rds_local():
+def get_rds_local(AWS_Inventory):
     #Get the AWS Account ID:
     account_id = get_account_id()
 
     #Get the RDS Inventory:  
-    instances_list = []
-
     for region in regions_scope:
         boto3_config = Config(region_name = '{}'.format(region))
         rds = boto3.client('rds', config=boto3_config)
@@ -176,23 +162,16 @@ def get_rds_local():
                 'DBInstanceStatus': '{}'.format(instance["DBInstanceStatus"]),
                 'Engine': '{}'.format(instance["Engine"])
             }
-            instances_list.append(instance_details)
+            AWS_Inventory.append(instance_details)
 
-    logger.info("RDS-Inventory: The number of RDS instances in the Account is: {}".format(len(instances_list)))
-    return instances_list
-
-def get_rds_cross_accounts_router():
-    print("Running: get_rds_cross_accounts_router")
-    cross_account_inventory_list = []
+def get_rds_cross_accounts_router(AWS_Inventory):
     try:
         for role in roles_list:
-            cross_account_inventory = get_rds_cross_accounts(role)
-            cross_account_inventory_list.append(cross_account_inventory)
-        return cross_account_inventory_list
+            get_rds_cross_accounts(AWS_Inventory, role)
     except Exception as error:
         logger.error(error)
 
-def get_rds_cross_accounts(role):
+def get_rds_cross_accounts(AWS_Inventory, role):
     #Set the Cross Account Credentials: 
     sts_connection = boto3.client('sts')
     cross_account_role = sts_connection.assume_role(
@@ -203,7 +182,7 @@ def get_rds_cross_accounts(role):
     SECRET_KEY = cross_account_role['Credentials']['SecretAccessKey']
     SESSION_TOKEN = cross_account_role['Credentials']['SessionToken']
 
-    # Get the AWS Account ID:
+    #Get the AWS Account ID:
     sts_connection = boto3.client(
         'sts',
         aws_access_key_id=ACCESS_KEY,
@@ -213,9 +192,7 @@ def get_rds_cross_accounts(role):
     get_account_id = sts_connection.get_caller_identity()
     account_id = get_account_id['Account']
 
-    # Get the RDS Inventory:  
-    instances_list = []
-
+    #Get the RDS Inventory:  
     for region in regions_scope:
         boto3_config = Config(region_name = '{}'.format(region))
         rds = boto3.client(
@@ -236,13 +213,9 @@ def get_rds_cross_accounts(role):
                 'DBInstanceStatus': '{}'.format(instance["DBInstanceStatus"]),
                 'Engine': '{}'.format(instance["Engine"])
             }
-            instances_list.append(instance_details)
+            AWS_Inventory.append(instance_details)
 
-    logger.info("RDS-Inventory: The number of RDS instances in the Account is: {}".format(len(instances_list)))
-
-    return instances_list
-
-def get_ecs_local():
+def get_ecs_local(AWS_Inventory):
     account_id = get_account_id()
 
     for region in regions_scope:
@@ -254,7 +227,6 @@ def get_ecs_local():
 
         list_clusters = ecs.list_clusters()
 
-        cluster_list = []
         for clusterArn in list_clusters['clusterArns']:
             cluster_description = ecs.describe_clusters(clusters=['{}'.format(clusterArn)])
             for cluster in cluster_description['clusters']:
@@ -280,6 +252,4 @@ def get_ecs_local():
                         'runningTasksCount': '{}'.format(cluster['runningTasksCount'])
                     }
 
-                cluster_list.append(cluster_details)
-
-        return cluster_list
+                AWS_Inventory.append(cluster_details)

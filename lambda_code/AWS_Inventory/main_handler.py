@@ -37,7 +37,7 @@ def lambda_handler(event, context):
         return {
             'statusCode': 400,
             'message': 'An error has occurred',
-			'moreInfo': {
+            'moreInfo': {
 				'Lambda Request ID': '{}'.format(context.aws_request_id),
 				'CloudWatch log stream name': '{}'.format(context.log_stream_name),
 				'CloudWatch log group name': '{}'.format(context.log_group_name)

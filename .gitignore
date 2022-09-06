@@ -3,6 +3,7 @@
 **/.infracost/*
 lambda_code/AWS_Inventory/cross_account_roles.json
 default.auto.tfvars
+**/.vscode/*
 
 # Local .terraform directories
 **/.terraform/*

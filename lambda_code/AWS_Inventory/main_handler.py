@@ -15,55 +15,72 @@ def lambda_handler(event, context):
         if scan_local_account == True:
             #Get Local and Cross Account Inventory Data:
             local_ec2_inventory = get_ec2_local(availability_zones)
-            cross_account_ec2_inventory = get_ec2_cross_accounts(availability_zones)
+            cross_account_ec2_inventory = get_ec2_cross_accounts_router(availability_zones)
             local_rds_inventory = get_rds_local()
-            cross_account_rds_inventory = get_rds_cross_accounts()
+            cross_account_rds_inventory = get_rds_cross_accounts_router()
             local_ecs_inventory = get_ecs_local()
 
             #Create Local and Cross Account Inventory List:
-            EC2_Inventory = []
-            for index in local_ec2_inventory:
-                EC2_Inventory.append(index)
-            for index in cross_account_ec2_inventory:
-                EC2_Inventory.append(index)
+            EC2_Inventory_Local = []
+            EC2_Inventory_Cross = []
+            if len(local_ec2_inventory) > 0:
+                for index in local_ec2_inventory:
+                    EC2_Inventory_Local.append(index)
+            if len(cross_account_ec2_inventory) > 0:
+                for index in cross_account_ec2_inventory:
+                    EC2_Inventory_Cross.append(index)
 
-            RDS_Inventory = []
-            for index in local_rds_inventory:
-                RDS_Inventory.append(index)
-            for index in cross_account_rds_inventory:
-                RDS_Inventory.append(index)
+            RDS_Inventory_Local = []
+            RDS_Inventory_Cross = []
+            if len(local_rds_inventory) > 0:
+                for index in local_rds_inventory:
+                    RDS_Inventory_Local.append(index)
+            if len(cross_account_rds_inventory) > 0:
+                for index in cross_account_rds_inventory:
+                    RDS_Inventory_Cross.append(index)
 
-            ECS_Inventory = []
-            for index in local_ecs_inventory:
-                ECS_Inventory.append(index)
+            ECS_Inventory_Local = []
+            ECS_Inventory_Cross = []
+            if len(local_ecs_inventory) > 0:
+                for index in local_ecs_inventory:
+                    ECS_Inventory_Local.append(index)
 
         else:
-            #Get Local Inventory Data:
-            cross_account_ec2_inventory = get_ec2_cross_accounts(availability_zones)
-            cross_account_rds_inventory = get_rds_cross_accounts()
+            #Get Cross Account Inventory Data:
+            cross_account_ec2_inventory = get_ec2_cross_accounts_router(availability_zones)
+            cross_account_rds_inventory = get_rds_cross_accounts_router()
 
-            #Create Local Inventory List:
-            EC2_Inventory = []
-            for index in cross_account_ec2_inventory:
-                EC2_Inventory.append(index)
-            RDS_Inventory = []
-            for index in cross_account_rds_inventory:
-                RDS_Inventory.append(index)
-
-        #Store Inventory in S3:
-        save_json(EC2_Inventory, RDS_Inventory, ECS_Inventory)
-        push_to_s3(bucket_name)
+            #Create Cross Account Inventory List:
+            EC2_Inventory_Cross = []
+            if len(cross_account_ec2_inventory) > 0:
+                for index in cross_account_ec2_inventory:
+                    EC2_Inventory_Cross.append(index)
+            RDS_Inventory_Cross = []
+            if len(cross_account_rds_inventory) > 0:
+                for index in cross_account_rds_inventory:
+                    RDS_Inventory_Cross.append(index)
 
         #Return the full inventory list:
         AWS_Inventory = []
-        AWS_Inventory.append(EC2_Inventory)
-        AWS_Inventory.append(RDS_Inventory)
-        AWS_Inventory.append(ECS_Inventory)
-        return AWS_Inventory
+        if len(EC2_Inventory_Local) > 0:
+            for index in EC2_Inventory_Local:
+                AWS_Inventory.append(index)
+        if len(EC2_Inventory_Cross) > 0:
+            for index in EC2_Inventory_Cross:
+                AWS_Inventory.append(index)
+        if len(RDS_Inventory_Local) > 0:
+            for index in RDS_Inventory_Local:
+                AWS_Inventory.append(index)
+        if len(RDS_Inventory_Cross) > 0:
+            for index in RDS_Inventory_Cross:
+                AWS_Inventory.append(index)
+        if len(ECS_Inventory_Local) > 0:
+            for index in ECS_Inventory_Local:
+                AWS_Inventory.append(index)
 
-        # return {
-        #     'Message': 'Success!'
-        # }
+        save_full_inventory(AWS_Inventory)
+        push_full_inventory_to_s3(bucket_name)
+        return AWS_Inventory
 
     except Exception as error:
         logger.error(error)

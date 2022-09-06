@@ -1,12 +1,10 @@
 # AWS Region: North of Virginia
 variable "aws_region" {
   type    = string
-  default = "us-east-1"
 }
 
 variable "aws_profile" {
   type    = string
-  default = ""
 }
 
 variable "enable_event_rules" {
@@ -37,7 +35,4 @@ variable "bucket_name" {
 
 variable "Roles_List" {
  type = list(string)
- default = [
- 	"arn:aws:iam::959033481857:role/AWS-Inventory"
-	]
 }

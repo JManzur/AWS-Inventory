@@ -11,6 +11,7 @@ def lambda_handler(event, context):
     logger.info(f'event: {event}')
     
     AWS_Inventory = []
+    AWS_Inventory.clear()
     try:
         availability_zones = get_availability_zones()
         if scan_local_account == True:

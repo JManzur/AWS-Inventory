@@ -23,5 +23,6 @@ resource "aws_lambda_function" "AWS_Inventory" {
     }
   }
   runtime = "python3.9"
-  timeout = "120"
+  timeout = 900
+  memory_size = 512
 }

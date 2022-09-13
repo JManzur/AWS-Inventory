@@ -1,5 +1,6 @@
 import boto3
 from botocore.config import Config
+from botocore.exceptions import ClientError
 import logging, json
 
 logger = logging.getLogger()
@@ -253,3 +254,46 @@ def get_ecs_local(AWS_Inventory):
                     }
 
                 AWS_Inventory.append(cluster_details)
+
+def get_s3_inventory(AWS_Inventory):
+    account_id = get_account_id()
+    s3 = boto3.client('s3')
+    buckets_list = s3.list_buckets()
+
+    for bucket in buckets_list['Buckets']:
+        bucket_name = bucket['Name']
+
+        try:
+            versioning = s3.get_bucket_versioning(Bucket='{}'.format(bucket_name))
+            if 'Status' in versioning:
+                VersioningStatus = versioning['Status']
+            else:
+                VersioningStatus = 'Not Enabled'
+        except ClientError as error:
+            if error.response['Error']['Code'] == 'NoSuchBucket':
+                logger.error('Error on {}, error message: {}'.format(bucket_name, error))
+        try:
+            encryption = s3.get_bucket_encryption(Bucket='{}'.format(bucket_name))
+            EncryptedEnabled = True
+
+        except ClientError as error:
+            if error.response['Error']['Code'] == 'ServerSideEncryptionConfigurationNotFoundError':
+                EncryptedEnabled = True
+        try:
+            public_access_block = s3.get_public_access_block(Bucket='{}'.format(bucket_name))
+            PublicAccessBlockConfiguration = json.dumps(public_access_block['PublicAccessBlockConfiguration'])
+            PublicAccessBlockConfiguration =json.loads(PublicAccessBlockConfiguration)
+        except ClientError as error:    
+            if error.response['Error']['Code'] == 'NoSuchPublicAccessBlockConfiguration':
+                PublicAccessBlockConfiguration = 'Not configured'
+
+        s3_object = {
+            'AccountID': '{}'.format(account_id),
+            'AccountDescription': '{}'.format(local_account_description),
+            'BucketName': '{}'.format(bucket_name),
+            'Encrypted': '{}'.format(EncryptedEnabled),
+            'VersioningStatus': '{}'.format(VersioningStatus),
+            'PublicAccessBlockConfiguration': '{}'.format(PublicAccessBlockConfiguration)
+        }
+        
+        AWS_Inventory.append(s3_object)

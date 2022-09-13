@@ -34,6 +34,13 @@ data "aws_iam_policy_document" "policy_source" {
   }
 
   statement {
+    sid    = "S3Permissions"
+    effect = "Allow"
+    actions = ["s3:*"]
+    resources = ["*"]
+  }
+
+  statement {
     sid    = "RDSPermissions"
     effect = "Allow"
     actions = [

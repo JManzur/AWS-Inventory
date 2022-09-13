@@ -20,6 +20,7 @@ def lambda_handler(event, context):
             get_rds_local(AWS_Inventory)
             get_rds_cross_accounts_router(AWS_Inventory)
             get_ecs_local(AWS_Inventory)
+            get_s3_inventory(AWS_Inventory)
 
             save_full_inventory(AWS_Inventory)
             push_full_inventory_to_s3(bucket_name)

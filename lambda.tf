@@ -22,7 +22,7 @@ resource "aws_lambda_function" "AWS_Inventory" {
       bucket_name = var.bucket_name
     }
   }
-  runtime = "python3.9"
-  timeout = 900
+  runtime     = "python3.9"
+  timeout     = 900
   memory_size = 512
 }

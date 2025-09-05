@@ -1,10 +1,10 @@
 # AWS Region: North of Virginia
 variable "aws_region" {
-  type    = string
+  type = string
 }
 
 variable "aws_profile" {
-  type    = string
+  type = string
 }
 
 variable "enable_event_rules" {
@@ -34,5 +34,5 @@ variable "bucket_name" {
 }
 
 variable "Roles_List" {
- type = list(string)
+  type = list(string)
 }

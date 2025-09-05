@@ -109,13 +109,13 @@ resource "aws_api_gateway_api_key" "aws_inventory_api_key" {
   name        = "aws_inventory_api_key"
   description = "AWS Inventory API API-Key"
   enabled     = true
-  tags          = { Name = "${var.name-prefix}-api-key" }
+  tags        = { Name = "${var.name-prefix}-api-key" }
 }
 
 # Usage plan definition:
 resource "aws_api_gateway_usage_plan" "aws_inventory_api_usage_plan" {
   name = "aws_inventory_api_usage_plan"
-  tags          = { Name = "${var.name-prefix}-usage_plan" }
+  tags = { Name = "${var.name-prefix}-usage_plan" }
 
   api_stages {
     api_id = aws_api_gateway_rest_api.aws_inventory_api.id
@@ -184,7 +184,7 @@ output "complete_invoke_url" {
 
 # Use the "-raw" command to view the API key: "terraform output -raw api_key"
 output "api_key" {
-  value     = aws_api_gateway_api_key.aws_inventory_api_key.value
-  sensitive = true
+  value       = aws_api_gateway_api_key.aws_inventory_api_key.value
+  sensitive   = true
   description = "API-Key"
 }
